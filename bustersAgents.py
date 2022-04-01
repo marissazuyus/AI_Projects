@@ -146,31 +146,22 @@ class GreedyBustersAgent(BustersAgent):
             [beliefs for i, beliefs in enumerate(self.ghostBeliefs)
              if livingGhosts[i+1]]
         "*** YOUR CODE HERE ***"
-        actionDistance = {}
-
-        for action in legal:
-            # Get successorPosition corresponding to the action
-            successorPosition = Actions.getSuccessor(pacmanPosition, action)
-            # List to store the distances between Pacman and the ghost positions having maximum probability
-            ghostDistance = []
-            # Loop over ghosts
-            for probGhostPositions in livingGhostPositionDistributions:
+        distance = {} # initialize distance array
+        for action in legal: # for all possible action
+            successorPosition = Actions.getSuccessor(pacmanPosition, action) # get the position of the successor given the action
+            ghostDistance = [] # initialize list to store distances from pacman to ghosts
+            for ghost in livingGhostPositionDistributions: # loop through the ghosts
                 # Find key such that its value in the dictionary probGhostPositions is maximum
-                vals = list(probGhostPositions.values())
-                keys = list(probGhostPositions.keys())
-                maxProbPosition = keys[vals.index(max(vals))]
+                values = list(ghost.values()) # store values of ghost
+                keys = list(ghost.keys()) # store associated keys
+                maxPosition = keys[values.index(max(values))] # get the key with the highest value probability
 
-                # Calculate the distance between Pacman and the position of the ghost having maximum probability
-                mazeDistance = self.distancer.getDistance(successorPosition, maxProbPosition)
-                # Append the distance to the ghostDistance list
-                ghostDistance.append(mazeDistance)
+                mazeDistance = self.distancer.getDistance(successorPosition, maxPosition) # get the shortest path between the Pacman and the position of the ghost
+                ghostDistance.append(mazeDistance)  # add this distance to the list of distances from pacman to ghosts
 
-            # As we need to choose the action that brings Pacman closer to the closest ghost,
-            # find the distance to the closest ghost for this action
-            actionDistance[action] = min(ghostDistance)
+            distance[action] = min(ghostDistance) # get distance to closest ghost given this action
 
-        # Find key (action) such that its value in the dictionary actionDistance is minimum, and return it
-        vals = list(actionDistance.values())
-        keys = list(actionDistance.keys())
+        values = list(distance.values())
+        keys = list(distance.keys())
 
-        return keys[vals.index(min(vals))]
+        return keys[values.index(min(values))] # return action where value is minimum
