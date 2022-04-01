@@ -324,12 +324,13 @@ class ExactInference(InferenceModule):
         "*** YOUR CODE HERE ***"
         #raiseNotDefined()
 
-        self.beliefs.normalize()
+        self.beliefs.normalize() # normalize the initial beliefs
 
-        for ghost in self.allPositions:
+        for ghost in self.allPositions: # for ghosts in all ghost positions
             self.beliefs[ghost] = self.beliefs[ghost] * self.getObservationProb(observation, gameState.getPacmanPosition(),
                                                                                 ghost, self.getJailPosition())
-        self.beliefs.normalize()
+            # The line above updates the belief of every position in which there is a ghost using the getObservationProb function
+        self.beliefs.normalize() # normalize the beliefs again
 
     def elapseTime(self, gameState):
         """
@@ -387,14 +388,14 @@ class ParticleFilter(InferenceModule):
         self.particles = []
         "*** YOUR CODE HERE ***"
 
-        numPos = len(self.legalPositions)
-        partsPerPos = self.numParticles // numPos
-        for position in self.legalPositions:
-            for i in range(partsPerPos):
-                self.particles.append(position)
-        if self.numParticles % numPos != 0:
-            for i in range(self.numParticles % numPos):
-                self.particles.append(self.legalPositions[i])
+        numPos = len(self.legalPositions) # get the number of legal positions
+        particlesPerPos = self.numParticles // numPos # get the number of particles per position (rounding down the answer)
+        for position in self.legalPositions: # loop through positions
+            for particles in range(particlesPerPos): # for each particle in the position
+                self.particles.append(position) #append position to particles list
+        if self.numParticles % numPos != 0: # if there is a remainder of particles
+            for i in range(self.numParticles % numPos): # for all remaining particles
+                self.particles.append(self.legalPositions[i]) # append positions in list to particles
 
         #raiseNotDefined()
 
@@ -444,17 +445,13 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
 
-        newParts = []
+        newParticles = [] # initialize new list of particles
 
-        # print "@@@@self.particles ", self.particles
-        for particle in self.particles:
-            finalPartDistr = self.getPositionDistribution(gameState, particle)
-            # print "@@@@finalPosDistr ", finalPosDistr
-            sample = finalPartDistr.sample()
-            newParts.append(sample)
-        # print "@@@type newParts ", type(newParts)
-        # print "@@@type self.particles ", type(self.particles)
-        self.particles = newParts
+        for particle in self.particles: # for all particles
+            newPosDist = self.getPositionDistribution(gameState, particle) #get position distribution of particle
+            sample = newPosDist.sample() # take sample of the position distribution
+            newParticles.append(sample) # add sample to new list of particles
+        self.particles = newParticles # update current list of particles to new list
         #raiseNotDefined()
 
     def getBeliefDistribution(self):
@@ -466,16 +463,14 @@ class ParticleFilter(InferenceModule):
         This function should return a normalized distribution.
         """
         "*** YOUR CODE HERE ***"
-        dist = DiscreteDistribution()
-        for particle in self.particles:
-            if particle in dist:
-                totalCount = dist[particle]
-                totalCount = totalCount + 1
-                dist[particle] = totalCount
+        distribution = DiscreteDistribution()
+        for particle in self.particles: #for all particles in list
+            if particle in distribution: # if particle is in discrete distribution
+                distribution[particle] = distribution[particle] + 1
             else:
-                dist[particle] = 1
-        dist.normalize()
-        return dist
+                distribution[particle] = 1
+        distribution.normalize() # normalize the distribution
+        return distribution
         #raiseNotDefined()
 
 
