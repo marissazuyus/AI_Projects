@@ -29,7 +29,7 @@
 
 def question2():
     answerDiscount = 0.9
-    answerNoise = 0.01
+    answerNoise = 0.01 #we pick noise variable to change in this case from 0.2 to 0.01
     return answerDiscount, answerNoise
 
 def question3a():
@@ -42,7 +42,7 @@ def question3a():
 def question3b():
     answerDiscount = 0.3
     answerNoise = 0.2
-    answerLivingReward = -1.5
+    answerLivingReward = -1.5 # reward for taking next step, negative in this case
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
