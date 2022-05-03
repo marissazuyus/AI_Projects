@@ -22,19 +22,16 @@ import random,util,math
 class QLearningAgent(ReinforcementAgent):
     """
       Q-Learning Agent
-
       Functions you should fill in:
         - computeValueFromQValues
         - computeActionFromQValues
         - getQValue
         - getAction
         - update
-
       Instance variables you have access to
         - self.epsilon (exploration prob)
         - self.alpha (learning rate)
         - self.discount (discount rate)
-
       Functions you should use
         - self.getLegalActions(state)
           which returns legal actions for a state
@@ -44,7 +41,7 @@ class QLearningAgent(ReinforcementAgent):
         ReinforcementAgent.__init__(self, **args)
 
         "*** YOUR CODE HERE ***"
-        self.q_values = util.Counter() #keeping track of equivalent values added
+        self.q_val = util.Counter() #keeping track of equivalent values added
 
     def getQValue(self, state, action):
         """
@@ -53,7 +50,7 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
-        return self.q_values[(state, action)] # returns Q state and action, where an unseen state would be 0 and an optimal state would be positive
+        return self.q_val[(state, action)] # returns Q state and action, where an unseen state would be 0 and an optimal state would be positive
 
     def computeValueFromQValues(self, state):
         """
@@ -66,10 +63,10 @@ class QLearningAgent(ReinforcementAgent):
         legalActions = self.getLegalActions(state) #get all legal actions
         if len(legalActions) == 0: #if there are no legal actions
             return 0.0
-        tmp = util.Counter() #initialize actions in temp
-        for action in legalActions:
-            tmp[action] = self.getQValue(state, action) #calculate value using getQvalue and add it to temp
-        return tmp[tmp.argMax()] #find the max value in temp and return maximum action
+        temp = util.Counter() #initialize actions in temp
+        for a in legalActions:
+            temp[a] = self.getQValue(state, a) #calculate value using getQvalue and add it to temp
+        return temp[temp.argMax()] #find the max value in temp and return maximum action
 
     def computeActionFromQValues(self, state):
         """
@@ -78,14 +75,14 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        actions = self.getLegalActions(state)
-        best_action = None
-        max_val = float('-inf')
-        for action in actions:
-            q_value = self.q_values[(state, action)]
-            if max_val < q_value:
-                max_val = q_value
-                best_action = action
+        legalActions = self.getLegalActions(state) #get all legal actions
+        best_action = None #set default value to none
+        max_value = float('-inf') #initialize max_val
+        for a in legalActions:
+            q_value = self.q_val[(state, a)] #get the calculated q value
+            if max_value < q_value: #if max value is less than q_value
+                max_value = q_value #update max value
+                best_action = a # assign action with max q_value to best_action
         return best_action
 
     def getAction(self, state):
@@ -95,7 +92,6 @@ class QLearningAgent(ReinforcementAgent):
           take the best policy action otherwise.  Note that if there are
           no legal actions, which is the case at the terminal state, you
           should choose None as the action.
-
           HINT: You might want to use util.flipCoin(prob)
           HINT: To pick randomly from a list, use random.choice(list)
         """
@@ -104,11 +100,11 @@ class QLearningAgent(ReinforcementAgent):
         action = None
         "*** YOUR CODE HERE ***"
         legal_actions = self.getLegalActions(state)
-        explore = util.flipCoin(self.epsilon)
-        if explore:
-            return random.choice(legal_actions)
+        move = util.flipCoin(self.epsilon) #decide move using probability epsilon
+        if move:
+            return random.choice(legal_actions) #take random action
         else:
-            return self.getPolicy(state)
+            return self.getPolicy(state) #take best policy action
 
         return action
 
@@ -117,19 +113,18 @@ class QLearningAgent(ReinforcementAgent):
           The parent class calls this to observe a
           state = action => nextState and reward transition.
           You should do your Q-Value update here
-
           NOTE: You should never call this function,
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        old_q_value = self.getQValue(state, action)
-        old_part = (1 - self.alpha) * old_q_value
+        q_value = self.getQValue(state, action) #the old q value
+        prev_part = (1 - self.alpha) * q_value
         reward_part = self.alpha * reward
         if not nextState:
-            self.q_values[(state, action)] = old_part + reward_part
+            self.q_val[(state, action)] = prev_part + reward_part
         else:
             nextState_part = self.alpha * self.discount * self.getValue(nextState)
-            self.q_values[(state, action)] = old_part + reward_part + nextState_part
+            self.q_val[(state, action)] = prev_part + reward_part + nextState_part #update q value with reward transition for next state
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
@@ -146,7 +141,6 @@ class PacmanQAgent(QLearningAgent):
         These default parameters can be changed from the pacman.py command line.
         For example, to change the exploration rate, try:
             python pacman.py -p PacmanQLearningAgent -a epsilon=0.1
-
         alpha    - learning rate
         epsilon  - exploration rate
         gamma    - discount factor
@@ -173,7 +167,6 @@ class PacmanQAgent(QLearningAgent):
 class ApproximateQAgent(PacmanQAgent):
     """
        ApproximateQLearningAgent
-
        You should only have to overwrite getQValue
        and update.  All other QLearningAgent functions
        should work as is.
